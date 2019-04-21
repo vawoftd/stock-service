@@ -1,0 +1,12 @@
+/target/
+.classpath
+.project
+.settings/
+.idea/
+*/target/*
+*.iml
+*/overlays/*
+*.iml
+*.class
+logs/
+.DS_Store
