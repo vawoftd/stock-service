@@ -6,7 +6,7 @@ spring:
     name: stock-service
   datasource:
     name: test
-    url: jdbc:mysql://127.0.0.1:3306/stock?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true
+    url: jdbc:mysql://192.168.1.101:3306/stock?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true
     username: root
     password: 88stIVA#2017
     type: com.alibaba.druid.pool.DruidDataSource

@@ -19,4 +19,9 @@
     <select id="selectOne" resultMap="BaseResultMap">
         SELECT * FROM info_stock where stock_code = #{stockCode}
     </select>
+
+    <update id="update">
+        UPDATE info_stock SET stock_name = #{stockName}
+        WHERE stock_code = #{stockCode}
+    </update>
 </mapper>

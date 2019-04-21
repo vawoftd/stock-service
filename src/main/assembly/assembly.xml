@@ -34,17 +34,10 @@
         <fileSet>
             <directory>src/main/resources</directory>
             <outputDirectory>config/</outputDirectory>
-            <!-- <fileMode>644</fileMode> 修改权限 -->
+            <fileMode>644</fileMode>
             <includes>
                 <include>*.xml</include>
                 <include>*.yml</include>
-                <include>*.properties</include>
-                <include>*.conf</include>
-                <include>**/*.xml</include>
-                <include>**/*.conf</include>
-                <include>**/**/*.xml</include>
-                <include>**/**/*.properties</include>
-                <include>**/*.txt</include>
             </includes>
             <lineEnding>unix</lineEnding>
         </fileSet>
@@ -52,10 +45,6 @@
         <fileSet>
             <directory>src/main/static</directory>
             <outputDirectory>static/</outputDirectory>
-            <!-- <fileMode>644</fileMode> 修改权限 -->
-            <includes>
-                <include>*.html</include>
-            </includes>
             <lineEnding>unix</lineEnding>
         </fileSet>
 

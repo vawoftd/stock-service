@@ -5,6 +5,7 @@ import com.vawo.foundation.demo.entity.InfoStock;
 import com.vawo.foundation.demo.entity.StockExtent;
 import com.vawo.foundation.demo.service.StockService;
 import com.vawo.foundation.demo.utils.MailUtils;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = DemoApplication.class)//这里是启动类
+@SpringBootTest(classes = StockServiceApplication.class)//这里是启动类
 public class TestStockService {
     @Autowired
     private StockService stockService;
@@ -60,7 +61,7 @@ public class TestStockService {
 
     //    @Test
     public void testCall() {
-        stockService.calPercent("2019-03-28 00:00:00", 100);
+        stockService.calPercent("2019-03-28 00:00:00", 100, "desc");
     }
 
     //    @Test

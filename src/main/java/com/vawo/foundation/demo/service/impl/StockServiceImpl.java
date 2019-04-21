@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,7 +76,7 @@ public class StockServiceImpl implements StockService {
                         }
                     }
                     Date lastCloseDate = stockPriceMapper.selectLast(stockCode);
-                    if(lastCloseDate.before(sp0.getClosingTime())) {
+                    if (lastCloseDate.before(sp0.getClosingTime())) {
                         stockPriceMapper.insertBatch(sps);
                     }
                     return new StockExtent(null, stockCode, sp0.getClose(), spn.getClose() - sp0.getClose(), spn.getClosingTime());
@@ -138,7 +135,7 @@ public class StockServiceImpl implements StockService {
         }
     }
 
-    public List<StockExtent> calPercent(String startDate, int top) {
+    public List<StockExtent> calPercent(String startDate, int top, String sort) {
         List<InfoStock> stocks = infoStockMapper.selectAll();
         List<StockExtent> lse = new ArrayList<>();
         for (InfoStock is : stocks) {
@@ -155,19 +152,30 @@ public class StockServiceImpl implements StockService {
                     }
                 }
                 if (sp0 != null && spn != null) {
-                    StockExtent extent = new StockExtent(is.getStockName(), is.getStockCode(), sp0.getClose(), spn.getClose() - sp0.getClose(), spn.getClosingTime());
+                    StockExtent extent = new StockExtent(is.getStockName(), is.getStockCode(), sp0.getClose(), spn.getClose(), spn.getClosingTime());
                     lse.add(extent);
-                    //System.out.println(extent.getStockName() + " " + extent.getStockCode() + " " + extent.getPrice() + " " + extent.getPercent());
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
-        Collections.sort(lse);
-//        for (StockExtent extent : lse) {
-//            System.out.println(extent.getStockName() + " " + extent.getStockCode() + " " + extent.getPrice() + " " + extent.getPercent());
-//        }
-        return lse.subList(0,top);
+        if (StringUtils.equals("desc", sort)) {
+            Collections.sort(lse);
+        } else {
+            Collections.sort(lse, new Comparator<StockExtent>() {
+                @Override
+                public int compare(StockExtent o1, StockExtent o2) {
+                    if (o1.getPct() < o2.getPct()) {
+                        return 1;
+                    } else if (o1.getPct() > o2.getPct()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+        }
+        return lse.subList(0, top);
     }
 
     @Scheduled(cron = "0 5 15 * * ?")

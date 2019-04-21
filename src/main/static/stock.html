@@ -6,100 +6,166 @@
     <title>Vue</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
 </head>
 
 <body>
     <div id="app">
-        <table border="1px" width="600px">
+        <el-row>
+            <el-col :span="2.5">
+                <div class="grid-content bg-purple">
+                    起始时间：
+                    <el-date-picker v-model="value1" type="date" value-format="yyyy-MM-dd" placeholder="选择日期">
+                    </el-date-picker>
+                </div>
+            </el-col>
+            <el-col :span="2.5">
+                <div class="grid-content bg-purple-light">
+                    Top N:
+                    <el-select v-model="topn" clearable placeholder="Top N">
+                        <el-option v-for="item in topns" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+            </el-col>
+            <el-col :span="2.5">
+                <div class="grid-content bg-purple-light">
+                    涨跌幅:
+                    <el-select v-model="sort" placeholder="涨跌幅">
+                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </div>
+            </el-col>
+            <el-col :span="1">
+                <div class="grid-content bg-purple">
+                    <el-button type="primary" plain @click="query" v-loading.fullscreen.lock="fullscreenLoading">Query
+                    </el-button>
+                </div>
+            </el-col>
+        </el-row>
+
+
+        <table width="600px" border="1" cellpadding="0" cellspacing="0" bordercolor="#0000"
+            style="border-collapse:collapse;">
             <tr>
                 <td>stockName</td>
                 <td>stockCode</td>
                 <td>price</td>
+                <td>current</td>
                 <td>percent</td>
             </tr>
             <tr v-for="stock in stocks">
                 <td>{{ stock.stockName  }}</td>
                 <td>{{ stock.stockCode  }}</td>
                 <td>{{ stock.price  }}</td>
+                <td>{{ stock.current  }}</td>
                 <td>{{ stock.percent  }}</td>
             </tr>
         </table>
-        <!--<button @click="add">添加</button>-->
     </div>
     <script type="text/javascript">
-
-        window.onload = function () {
-            var vm = new Vue({
-                el: '#app',
-                data: {
-                    stocks: [],
-                },
-                created: function () {
-                    axios.get('http://192.168.1.101:9999/stock/extent?startDate=2019-03-30&top=10')
-                        .then(function (response) {
-                            console.log(response.data);
-                            this.stocks = response.data;
-                            console.log(response.data);
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                }
-                /**
-                ,
-                mounted: function () {
-                    this.get();
-                },
-                methods: {
-                    get: function () {
-                        //发送get请求
-                        axios.get('http://192.168.1.101:9999/stock/extent?startDate=2019-03-30&top=10')
-                            .then(function (response) {
-                                console.log(response.data);
-                                this.stocks = response.data;
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                            });
-                    }
-                }
-                **/
-            });
-        }
-
-        /**
         var vm = new Vue({
             el: '#app',
             data: {
-                stocks: [{ "closingTime": 1555657200000, "percent": "-50%", "price": 49.7, "stockCode": "sz300559", "stockName": "佳发教育\t" }]
+                stocks: [],
+                value1: '',
+                topn: '',
+                topns: [{
+                    value: '10',
+                    label: '10'
+                }, {
+                    value: '20',
+                    label: '20'
+                }, {
+                    value: '50',
+                    label: '50'
+                }, {
+                    value: '100',
+                    label: '100'
+                }, {
+                    value: '200',
+                    label: '200'
+                }, {
+                    value: '500',
+                    label: '500'
+                }, {
+                    value: '1000',
+                    label: '1000'
+                }],
+                sort: 'asc',
+                options: [{
+                    value: 'asc',
+                    label: '涨幅'
+                }, {
+                    value: 'desc',
+                    label: '跌幅'
+                }],
+                fullscreenLoading: false
             },
             methods: {
-                add: function () {
-                    axios.get('http://192.168.1.101:9999/stock/extent?startDate=2019-03-30&top=10')
-                        .then(function (response) {
-                            for (let v of response) {
-                                this.stocks.push(v);
-                            };
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                    axios.interceptors.response.use(function (response) {
-                        // 对响应数据做点什么
-                        for (let v of response) {
-                            this.stocks.push(v);
-                        };
-                        return response;
-                    }, function (error) {
-                        // 对响应错误做点什么
-                        return Promise.reject(error);
+                query: function () {
+                    this.fullscreenLoading = true;
+                    // setTimeout(() => {
+                    //     this.fullscreenLoading = false;
+                    // }, 10000);
+                    var dateValue = this.value1;
+                    if (dateValue === '') {
+                        var timestamp = Date.parse(new Date()) - (10 * 24 * 60 * 60 * 1000);
+                        var date = new Date(timestamp);
+                        Y = date.getFullYear() + '-';
+                        M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                        D = date.getDate();
+                        dateValue = Y + M + D;
+                    }
+                    var top = this.topn;
+                    if (top === '') {
+                        top = '20';
+                    }
+                    var sort = this.sort;
+                    if (sort === '') {
+                        sort = 'desc';
+                    }
+                    axios.get('http://192.168.1.101:9999/stock/extent?startDate=' + dateValue + '&top=' + top + '&sort=' + sort).then(res => {
+                        this.stocks = res.data;
+                        this.fullscreenLoading = false;
+                    }).catch(function (error) {
+                        console.log(error);
                     });
-                    this.stocks.push({ "closingTime": 1555657200000, "percent": "-50%", "price": 49.7, "stockCode": "sz300559", "stockName": "佳发教育\t" })
-                },
+                    
+                }
             }
         });
-        **/
     </script>
+    <style>
+        .el-row {
+            margin-bottom: 20px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .el-col {
+            border-radius: 4px;
+        }
+
+        .bg-purple {
+            background: #d3dce6;
+        }
+
+        .bg-purple-light {
+            background: #e5e9f2;
+        }
+
+        .grid-content {
+            border-radius: 4px;
+            min-height: 36px;
+        }
+    </style>
 </body>
 
 </html>

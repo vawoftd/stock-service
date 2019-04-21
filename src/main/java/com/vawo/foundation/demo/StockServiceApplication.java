@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-@MapperScan(basePackages = { "com.sensetime.iva.senseface.*.dao" })
+@MapperScan(basePackages = { "com.vawo.foundation.*.dao" })
 public class StockServiceApplication {
 
     public static void main(String[] args) {

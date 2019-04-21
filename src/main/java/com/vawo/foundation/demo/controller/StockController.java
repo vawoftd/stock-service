@@ -32,11 +32,11 @@ public class StockController {
         return new ResponseEntity<>(stockService.getData(stockId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "stock extent", notes = "stock extent", httpMethod = "POST",
+    @ApiOperation(value = "stock extent", notes = "stock extent", httpMethod = "GET",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE, response = ResponseEntity.class)
     @RequestMapping(value = "/extent", method = RequestMethod.GET)
-    public ResponseEntity<?> calPercent(@RequestParam String startDate, @RequestParam Integer top) {
+    public ResponseEntity<?> calPercent(@RequestParam String startDate, @RequestParam Integer top, @RequestParam String sort) {
         startDate = startDate + " 00:00:00";
-        return new ResponseEntity<>(JSON.toJSONString(stockService.calPercent(startDate, top)), HttpStatus.OK);
+        return new ResponseEntity<>(JSON.toJSONString(stockService.calPercent(startDate, top, sort)), HttpStatus.OK);
     }
 }

@@ -13,7 +13,7 @@ public interface StockService {
 
     void allStock();
 
-    List<StockExtent> calPercent(String startDate, int top);
+    List<StockExtent> calPercent(String startDate, int top, String sort);
 
     void colectStockData();
 
