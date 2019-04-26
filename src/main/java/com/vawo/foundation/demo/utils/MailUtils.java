@@ -114,7 +114,8 @@ public class MailUtils {
         // 设置邮件标题
         message.setSubject("IP Address");
         // 设置邮件内容
-        message.setText(ip);
+        String text = "http://s%:9999";
+        message.setText(String.format(text, ip));
         // 得到邮差对象
         Transport transport = session.getTransport();
         // 连接自己的邮箱账户

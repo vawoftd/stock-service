@@ -129,7 +129,8 @@
                     if (sort === '') {
                         sort = 'desc';
                     }
-                    axios.get('http://192.168.1.101:9999/stock/extent?startDate=' + dateValue + '&top=' + top + '&sort=' + sort).then(res => {
+                    var urlPre = window.location.protocol + '//' + window.location.host;
+                    axios.get(urlPre + '/stock/extent?startDate=' + dateValue + '&top=' + top + '&sort=' + sort).then(res => {
                         this.stocks = res.data;
                         this.fullscreenLoading = false;
                     }).catch(function (error) {
