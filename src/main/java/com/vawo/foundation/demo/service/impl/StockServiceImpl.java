@@ -41,10 +41,8 @@ public class StockServiceImpl implements StockService {
      * @return
      */
     @Override
-    public StockExtent getData(String stockCode) {
-
-        //（参数：编号、分钟间隔（5、15、30、60）、均值（5、10、15、20、25）、查询个数点（最大值242））
-        String url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=" + stockCode + "&scale=60&ma=5&datalen=4";
+    public StockExtent collectData(String stockCode) {
+        String url = String.format(StockServiceConstant.DATA_COLLECT_URL, stockCode);
         HttpResult result = HttpUtil.doGet(url);
         if (null != result) {
             String data = result.getData();
@@ -179,12 +177,12 @@ public class StockServiceImpl implements StockService {
     }
 
     @Scheduled(cron = "0 5 15 * * ?")
-    public void colectStockData() {
+    public void collectStockData() {
         logger.info("collect stock data ...");
         List<InfoStock> stocks = infoStockMapper.selectAll();
         int num = 1;
         for (InfoStock is : stocks) {
-            getData(is.getStockCode());
+            collectData(is.getStockCode());
             try {
                 double random = Math.random();
                 long times = 500 + (long) (random * 1000L);

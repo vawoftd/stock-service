@@ -5,7 +5,6 @@ import com.vawo.foundation.demo.entity.InfoStock;
 import com.vawo.foundation.demo.entity.StockExtent;
 import com.vawo.foundation.demo.service.StockService;
 import com.vawo.foundation.demo.utils.MailUtils;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +36,7 @@ public class TestStockService {
         List<InfoStock> stocks = infoStockMapper.selectAll();
         int num = 0;
         for (InfoStock is : stocks) {
-            StockExtent extent = stockService.getData(is.getStockCode());
+            StockExtent extent = stockService.collectData(is.getStockCode());
             extent.setStockName(is.getStockName());
             lse.add(extent);
             try {
@@ -66,7 +65,7 @@ public class TestStockService {
 
     //    @Test
     public void testGetDataCall() {
-        stockService.getData("sz000999");
+        stockService.collectData("sz000999");
     }
 
     //    @Test

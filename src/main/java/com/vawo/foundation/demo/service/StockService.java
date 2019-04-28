@@ -9,12 +9,12 @@ public interface StockService {
      * @param stockCode
      * @return
      */
-    StockExtent getData(String stockCode);
+    StockExtent collectData(String stockCode);
 
     void allStock();
 
     List<StockExtent> calPercent(String startDate, int top, String sort);
 
-    void colectStockData();
+    void collectStockData();
 
 }

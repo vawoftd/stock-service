@@ -29,7 +29,7 @@ public class StockController {
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE, response = ResponseEntity.class)
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public ResponseEntity<?> list(@RequestParam String stockId) {
-        return new ResponseEntity<>(stockService.getData(stockId), HttpStatus.OK);
+        return new ResponseEntity<>(stockService.collectData(stockId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "stock extent", notes = "stock extent", httpMethod = "GET",
