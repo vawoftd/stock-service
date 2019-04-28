@@ -5,6 +5,7 @@ import com.vawo.foundation.demo.entity.InfoStock;
 import com.vawo.foundation.demo.entity.StockExtent;
 import com.vawo.foundation.demo.service.StockService;
 import com.vawo.foundation.demo.utils.MailUtils;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -68,7 +69,7 @@ public class TestStockService {
         stockService.collectData("sz000999");
     }
 
-    //    @Test
+        @Test
     public void testReadMail() {
         mailUtils.readMail();
     }

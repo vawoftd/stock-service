@@ -79,6 +79,7 @@ public class MailUtils {
             folder.close(false);// 关闭邮件夹对象
             store.close(); // 关闭连接对象
         } catch (Exception e) {
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
 
@@ -94,7 +95,7 @@ public class MailUtils {
         return text;
     }
 
-    private void send(String ip) throws AddressException, MessagingException {
+    private void send(String ip) throws MessagingException {
         Properties properties = new Properties();
         properties.put("mail.transport.protocol", "smtp");// 连接协议
         properties.put("mail.smtp.host", "smtp.qq.com");// 主机名
@@ -114,7 +115,7 @@ public class MailUtils {
         // 设置邮件标题
         message.setSubject("IP Address");
         // 设置邮件内容
-        String text = "http://s%:9999";
+        String text = "http://%s:9999";
         message.setText(String.format(text, ip));
         // 得到邮差对象
         Transport transport = session.getTransport();
