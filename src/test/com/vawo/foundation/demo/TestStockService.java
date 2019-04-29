@@ -69,7 +69,7 @@ public class TestStockService {
         stockService.collectData("sz000999");
     }
 
-        @Test
+//        @Test
     public void testReadMail() {
         mailUtils.readMail();
     }

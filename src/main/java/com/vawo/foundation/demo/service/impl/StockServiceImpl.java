@@ -176,7 +176,7 @@ public class StockServiceImpl implements StockService {
         return lse.subList(0, top);
     }
 
-    @Scheduled(cron = "0 5 15 * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void collectStockData() {
         logger.info("collect stock data ...");
         List<InfoStock> stocks = infoStockMapper.selectAll();
