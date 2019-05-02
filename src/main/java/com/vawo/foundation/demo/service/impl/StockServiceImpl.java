@@ -176,7 +176,7 @@ public class StockServiceImpl implements StockService {
         return lse.subList(0, top);
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "0 30 0 * * ?")
     public void collectStockData() {
         logger.info("collect stock data ...");
         List<InfoStock> stocks = infoStockMapper.selectAll();
@@ -185,7 +185,7 @@ public class StockServiceImpl implements StockService {
             collectData(is.getStockCode());
             try {
                 double random = Math.random();
-                long times = 500 + (long) (random * 1000L);
+                long times = 1000 + (long) (random * 1000L);
                 logger.info("collect stock data: {}, sleep: {}", is.getStockCode(), times);
                 Thread.sleep(times);
                 if (num % 50 == 0) {

@@ -64,9 +64,9 @@ public class TestStockService {
         stockService.calPercent("2019-03-28 00:00:00", 100, "desc");
     }
 
-    //    @Test
+//        @Test
     public void testGetDataCall() {
-        stockService.collectData("sz000999");
+        stockService.collectData("sz300347");
     }
 
 //        @Test
