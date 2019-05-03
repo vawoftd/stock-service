@@ -16,4 +16,6 @@ public interface TurnoverDayMapper {
     int insert(TurnoverDay td);
 
     List<TurnoverDay> selectByDate(@Param("stockCode") String stockCode, @Param("startTime") Date startTime);
+
+    int update(@Param("stockCode") String stockCode, @Param("day") Date day, @Param("priceDay") float priceDay);
 }

@@ -2,7 +2,7 @@ package com.vawo.foundation.demo.entity;
 
 import java.util.Date;
 
-public class StockPrice {
+public class StockRecord {
     private String stockCode;
     private float open;
     private float close;
@@ -11,10 +11,10 @@ public class StockPrice {
     private float low;
     private long volume;
 
-    public StockPrice() {
+    public StockRecord() {
     }
 
-    public StockPrice(String stockCode, float open, float close, Date closingTime, float high, float low, long volume) {
+    public StockRecord(String stockCode, float open, float close, Date closingTime, float high, float low, long volume) {
         this.stockCode = stockCode;
         this.open = open;
         this.close = close;

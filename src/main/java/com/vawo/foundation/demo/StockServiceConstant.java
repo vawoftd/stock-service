@@ -7,7 +7,12 @@ public class StockServiceConstant {
     /**
      * yyyy-MM-dd HH:mm:ss
      */
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final DateFormat DATE_FORMAT_YMDHMS = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * yyyy-MM-dd
+     */
+    public static final DateFormat DATE_FORMAT_YMD = new SimpleDateFormat("yyyy-MM-dd");
 
     public static final String[] STOCK_PREFIX = {"sz300", "sh600", "sh601", "sh603", "sz002", "sz000"};
     public static final String STOCK_URL = "http://hq.sinajs.cn/list=%s";

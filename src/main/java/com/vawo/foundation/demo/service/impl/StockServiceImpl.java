@@ -4,15 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.vawo.foundation.demo.StockServiceConstant;
-import com.vawo.foundation.demo.dao.InfoStockMapper;
-import com.vawo.foundation.demo.dao.StockPriceMapper;
-import com.vawo.foundation.demo.entity.InfoStock;
+import com.vawo.foundation.demo.dao.StockMapper;
+import com.vawo.foundation.demo.dao.StockRecordMapper;
+import com.vawo.foundation.demo.dao.TurnoverDayMapper;
+import com.vawo.foundation.demo.entity.Stock;
 import com.vawo.foundation.demo.entity.StockExtent;
-import com.vawo.foundation.demo.entity.StockPrice;
+import com.vawo.foundation.demo.entity.StockRecord;
+import com.vawo.foundation.demo.entity.TurnoverDay;
 import com.vawo.foundation.demo.service.StockService;
 import com.vawo.foundation.demo.utils.HttpResult;
 import com.vawo.foundation.demo.utils.HttpUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +35,11 @@ public class StockServiceImpl implements StockService {
     private static final Logger logger = LoggerFactory.getLogger(StockServiceImpl.class);
 
     @Autowired
-    private StockPriceMapper stockPriceMapper;
+    private StockRecordMapper stockRecordMapper;
     @Autowired
-    private InfoStockMapper infoStockMapper;
+    private StockMapper stockMapper;
+    @Autowired
+    private TurnoverDayMapper turnoverDayMapper;
 
     /**
      * @param stockCode
@@ -48,34 +53,35 @@ public class StockServiceImpl implements StockService {
             String data = result.getData();
             if (StringUtils.isNotBlank(data)) {
                 try {
-                    List<StockPrice> sps = new ArrayList<>();
+                    List<StockRecord> srs = new ArrayList<>();
                     JSONArray jsonArray = JSON.parseArray(data);
-                    StockPrice sp0 = null;
-                    StockPrice spn = null;
+                    StockRecord sp0 = null;
+                    StockRecord spn = null;
                     for (int i = 0; i < jsonArray.size(); i++) {
                         JSONObject jo = jsonArray.getJSONObject(i);
                         float open = jo.getFloat("open");
                         float close = jo.getFloat("close");
                         Date closingTime = null;
                         try {
-                            closingTime = StockServiceConstant.DATE_FORMAT.parse(jo.getString("day"));
+                            closingTime = StockServiceConstant.DATE_FORMAT_YMDHMS.parse(jo.getString("day"));
                         } catch (ParseException px) {
                             px.printStackTrace();
                         }
                         float high = jo.getFloat("high");
                         float low = jo.getFloat("low");
                         long volume = jo.getLong("volume");
-                        StockPrice sp = new StockPrice(stockCode, open, close, closingTime, high, low, volume);
-                        sps.add(sp);
+                        StockRecord sp = new StockRecord(stockCode, open, close, closingTime, high, low, volume);
+                        srs.add(sp);
                         if (i == 0) {
                             sp0 = sp;
                         } else {
                             spn = sp;
                         }
                     }
-                    Date lastCloseDate = stockPriceMapper.selectLast(stockCode);
+                    Date lastCloseDate = stockRecordMapper.selectLast(stockCode);
                     if (lastCloseDate.before(sp0.getClosingTime())) {
-                        stockPriceMapper.insertBatch(sps);
+                        stockRecordMapper.insertBatch(srs);
+                        statisticsTurnover(srs);
                     }
                     return new StockExtent(null, stockCode, sp0.getClose(), spn.getClose() - sp0.getClose(), spn.getClosingTime());
                 } catch (Exception je) {
@@ -84,6 +90,22 @@ public class StockServiceImpl implements StockService {
             }
         }
         return new StockExtent();
+    }
+
+    public void statisticsTurnover(List<StockRecord> srs) {
+        StockRecord sr = null;
+        long turnover = 0L;
+        for (StockRecord stockRecord : srs) {
+            turnover = turnover + stockRecord.getVolume();
+            sr = stockRecord;
+        }
+        TurnoverDay turnoverDay = new TurnoverDay();
+        turnoverDay.setStockCode(sr.getStockCode());
+        turnoverDay.setTurnoverDay(turnover);
+        turnoverDay.setPriceDay(sr.getClose());
+        turnoverDay.setDay(sr.getClosingTime());
+        turnoverDay.setCalculateDate(new Date());
+        turnoverDayMapper.insert(turnoverDay);
     }
 
     public void allStock() {
@@ -134,15 +156,15 @@ public class StockServiceImpl implements StockService {
     }
 
     public List<StockExtent> calPercent(String startDate, int top, String sort) {
-        List<InfoStock> stocks = infoStockMapper.selectAll();
+        List<Stock> stocks = stockMapper.selectAll();
         List<StockExtent> lse = new ArrayList<>();
-        for (InfoStock is : stocks) {
+        for (Stock is : stocks) {
             try {
-                List<StockPrice> prices = stockPriceMapper.selectByDate(is.getStockCode(), StockServiceConstant.DATE_FORMAT.parse(startDate));
-                StockPrice sp0 = null;
-                StockPrice spn = null;
+                List<StockRecord> prices = stockRecordMapper.selectByDate(is.getStockCode(), StockServiceConstant.DATE_FORMAT_YMDHMS.parse(startDate));
+                StockRecord sp0 = null;
+                StockRecord spn = null;
                 for (int i = 0; i < prices.size(); i++) {
-                    StockPrice sp = prices.get(i);
+                    StockRecord sp = prices.get(i);
                     if (i == 0) {
                         sp0 = sp;
                     } else {
@@ -176,25 +198,14 @@ public class StockServiceImpl implements StockService {
         return lse.subList(0, top);
     }
 
-    @Scheduled(cron = "0 30 0 * * ?")
-    public void collectStockData() {
-        logger.info("collect stock data ...");
-        List<InfoStock> stocks = infoStockMapper.selectAll();
-        int num = 1;
-        for (InfoStock is : stocks) {
-            collectData(is.getStockCode());
-            try {
-                double random = Math.random();
-                long times = 1000 + (long) (random * 1000L);
-                logger.info("collect stock data: {}, sleep: {}", is.getStockCode(), times);
-                Thread.sleep(times);
-                if (num % 50 == 0) {
-                    Thread.sleep(180000 + (long) (random * 30000));
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            num++;
+    public List<TurnoverDay> listStockTurnover(String stockCode, String startDateStr) {
+        Date startDate = null;
+        try {
+            startDate = StockServiceConstant.DATE_FORMAT_YMD.parse(startDateStr);
+            return turnoverDayMapper.selectByDate(stockCode, startDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+        return Collections.EMPTY_LIST;
     }
 }

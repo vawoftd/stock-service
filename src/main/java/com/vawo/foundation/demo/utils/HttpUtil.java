@@ -345,7 +345,7 @@ public class HttpUtil {
             response = client.execute(get);
             result = getHttpResult(response);
         } catch (Exception e) {
-            logger.error(">>> get request failed, url:{}, message:{}", url, e.getMessage());
+            logger.error(">>> doGet request failed, url:{}, message:{}", url, e.getMessage());
         } finally {
             close(client, response);
         }

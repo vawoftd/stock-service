@@ -3,11 +3,11 @@ package com.vawo.foundation.demo.utils;
 import com.alibaba.druid.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
@@ -22,6 +22,7 @@ public class MailUtils {
     private final static String AUTH_CODE = "zrjwlrloctzbbhfi";
     private final static String MAIL_ADDR = "phuan520@qq.com";
 
+    @Async
     @Scheduled(cron = "0 * * * * ?")
     public void readMail() {
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
@@ -55,9 +56,6 @@ public class MailUtils {
             // 通过imap协议获得Store对象调用这个方法时，邮件夹名称只能指定为"INBOX"
             Folder folder = store.getFolder("INBOX");// 获得用户的邮件帐户
             folder.open(Folder.READ_WRITE); // 设置对邮件帐户的访问权限
-
-            int n = folder.getUnreadMessageCount();// 得到未读数量
-            logger.info("[Info] >>>>> read ip email: " + n);
 
             FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.SEEN), false); // false代表未读，true代表已读
             Message messages[] = folder.search(ft);

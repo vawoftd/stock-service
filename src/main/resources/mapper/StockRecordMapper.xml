@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.vawo.foundation.demo.dao.StockPriceMapper">
-    <resultMap id="BaseResultMap" type="com.vawo.foundation.demo.entity.StockPrice">
+<mapper namespace="com.vawo.foundation.demo.dao.StockRecordMapper">
+    <resultMap id="BaseResultMap" type="com.vawo.foundation.demo.entity.StockRecord">
         <result column="stock_code" property="stockCode" jdbcType="VARCHAR"/>
         <result column="open" property="open" jdbcType="FLOAT"/>
         <result column="close" property="close" jdbcType="FLOAT"/>
@@ -14,7 +14,7 @@
     <insert id="insertBatch" parameterType="java.util.List">
         insert into info_stock_record (stock_code,`open`,`close`,closing_time,high,low,volume)
         values
-        <foreach collection="sps" item="sc" index="index" separator=",">
+        <foreach collection="srs" item="sc" index="index" separator=",">
             (
             #{sc.stockCode},
             #{sc.open},

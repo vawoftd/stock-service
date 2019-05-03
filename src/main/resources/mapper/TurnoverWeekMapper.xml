@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vawo.foundation.demo.dao.TurnoverWeekMapper">
+    <resultMap id="BaseResultMap" type="com.vawo.foundation.demo.entity.TurnoverWeek">
+        <id column="turnover_week_id" property="turnoverWeekId" jdbcType="BIGINT"/>
+        <result column="stock_code" property="stockCode" jdbcType="VARCHAR"/>
+        <result column="turnover_week" property="turnoverWeek" jdbcType="BIGINT"/>
+        <result column="price_week" property="priceWeek" jdbcType="FLOAT"/>
+        <result column="extent_week" property="extentWeek" jdbcType="VARCHAR"/>
+        <result column="calculate_date" property="calculateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.vawo.foundation.demo.entity.TurnoverWeek"
+            useGeneratedKeys="true" keyProperty="turnover_week_id">
+        insert into info_turnover_week (stock_code, turnover_week, price_week, extent_week, calculate_date)
+        values
+        (
+            #{stockCode, jdbcType=VARCHAR},
+            #{turnoverWeek, jdbcType=BIGINT},
+            #{priceWeek, jdbcType=FLOAT},
+            #{extentWeek, jdbcType=VARCHAR},
+            #{calculateDate, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <insert id="insertBatch" parameterType="java.util.List"
+            useGeneratedKeys="true" keyProperty="turnover_week_id">
+        insert into info_turnover_week (stock_code, turnover_week, price_week, extent_week, calculate_date)
+        values
+        <foreach collection="tds" item="td" index="index" separator=",">
+            (
+            #{td.stockCode, jdbcType=VARCHAR},
+            #{td.turnoverWeek, jdbcType=BIGINT},
+            #{td.priceWeek, jdbcType=FLOAT},
+            #{td.extentWeek, jdbcType=VARCHAR},
+            #{td.calculateDate, jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        SELECT * FROM info_turnover_week
+        WHERE 1=1
+        <if test="stockCode != null and stockCode != ''">
+            and stock_code = #{stockCode}
+        </if>
+        <if test="startTime != null">
+            <![CDATA[and calculate_date >= #{startTime}]]>
+        </if>
+    </select>
+</mapper>

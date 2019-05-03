@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.vawo.foundation.demo.dao.InfoStockMapper">
-    <resultMap id="BaseResultMap" type="com.vawo.foundation.demo.entity.InfoStock">
+<mapper namespace="com.vawo.foundation.demo.dao.StockMapper">
+    <resultMap id="BaseResultMap" type="com.vawo.foundation.demo.entity.Stock">
         <result column="stock_code" property="stockCode" jdbcType="VARCHAR"/>
         <result column="stock_name" property="stockName" jdbcType="VARCHAR"/>
         <result column="collect_time" property="collectTime" jdbcType="TIMESTAMP"/>

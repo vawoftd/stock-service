@@ -1,8 +1,10 @@
 package com.vawo.foundation.demo;
 
-import com.vawo.foundation.demo.dao.InfoStockMapper;
-import com.vawo.foundation.demo.entity.InfoStock;
+import com.vawo.foundation.demo.dao.StockMapper;
+import com.vawo.foundation.demo.dao.StockRecordMapper;
+import com.vawo.foundation.demo.entity.Stock;
 import com.vawo.foundation.demo.entity.StockExtent;
+import com.vawo.foundation.demo.entity.StockRecord;
 import com.vawo.foundation.demo.service.StockService;
 import com.vawo.foundation.demo.utils.MailUtils;
 import org.junit.Test;
@@ -11,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -20,9 +24,10 @@ import java.util.List;
 public class TestStockService {
     @Autowired
     private StockService stockService;
-
     @Autowired
-    private InfoStockMapper infoStockMapper;
+    private StockRecordMapper stockRecordMapper;
+    @Autowired
+    private StockMapper stockMapper;
     @Autowired
     private MailUtils mailUtils;
 
@@ -34,9 +39,9 @@ public class TestStockService {
     //    @Test
     public void testGetData() {
         List<StockExtent> lse = new ArrayList<>();
-        List<InfoStock> stocks = infoStockMapper.selectAll();
+        List<Stock> stocks = stockMapper.selectAll();
         int num = 0;
-        for (InfoStock is : stocks) {
+        for (Stock is : stocks) {
             StockExtent extent = stockService.collectData(is.getStockCode());
             extent.setStockName(is.getStockName());
             lse.add(extent);
@@ -64,13 +69,25 @@ public class TestStockService {
         stockService.calPercent("2019-03-28 00:00:00", 100, "desc");
     }
 
-//        @Test
+    //        @Test
     public void testGetDataCall() {
         stockService.collectData("sz300347");
     }
 
-//        @Test
+    //        @Test
     public void testReadMail() {
         mailUtils.readMail();
+    }
+
+    // @Test
+    public void testStatisticsTurnover() {
+        try {
+            Date date = StockServiceConstant.DATE_FORMAT_YMDHMS.parse("2019-04-30 00:00:00");
+            List<StockRecord> srs = stockRecordMapper.selectByDate("sh600000", date);
+            stockService.statisticsTurnover(srs);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 package com.vawo.foundation.demo.entity;
 
+
 import java.util.Date;
 
 public class TurnoverDay {
@@ -8,9 +9,20 @@ public class TurnoverDay {
     private long turnoverDay;
     private float priceDay;
     private String extentDay;
+    private Date day;
     private Date calculateDate;
 
     public TurnoverDay() {
+    }
+
+    public TurnoverDay(long turnoverDayId, String stockCode, long turnoverDay, float priceDay, String extentDay, Date day, Date calculateDate) {
+        this.turnoverDayId = turnoverDayId;
+        this.stockCode = stockCode;
+        this.turnoverDay = turnoverDay;
+        this.priceDay = priceDay;
+        this.extentDay = extentDay;
+        this.day = day;
+        this.calculateDate = calculateDate;
     }
 
     public long getTurnoverDayId() {
@@ -51,6 +63,14 @@ public class TurnoverDay {
 
     public void setExtentDay(String extentDay) {
         this.extentDay = extentDay;
+    }
+
+    public Date getDay() {
+        return day;
+    }
+
+    public void setDay(Date day) {
+        this.day = day;
     }
 
     public Date getCalculateDate() {

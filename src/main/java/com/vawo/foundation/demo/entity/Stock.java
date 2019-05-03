@@ -2,15 +2,15 @@ package com.vawo.foundation.demo.entity;
 
 import java.util.Date;
 
-public class InfoStock {
+public class Stock {
     private String stockCode;
     private String stockName;
     private Date collectTime;
 
-    public InfoStock() {
+    public Stock() {
     }
 
-    public InfoStock(String stockCode, String stockName) {
+    public Stock(String stockCode, String stockName) {
         this.stockCode = stockCode;
         this.stockName = stockName;
     }

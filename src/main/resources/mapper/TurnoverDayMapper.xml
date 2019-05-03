@@ -7,24 +7,27 @@
         <result column="turnover_day" property="turnoverDay" jdbcType="BIGINT"/>
         <result column="price_day" property="priceDay" jdbcType="FLOAT"/>
         <result column="extent_day" property="extentDay" jdbcType="VARCHAR"/>
+        <result column="day" property="day" jdbcType="DATE"/>
         <result column="calculate_date" property="calculateDate" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.vawo.foundation.demo.entity.TurnoverDay"
-            useGeneratedKeys="true" keyProperty="turnover_day_id">
-        insert into info_turnover_day (stock_code, turnover_day, price_day, extent_day, calculate_date)
+            useGeneratedKeys="true" keyProperty="turnoverDayId">
+        insert into info_turnover_day (stock_code, turnover_day, price_day, extent_day, day, calculate_date)
         values
         (
             #{stockCode, jdbcType=VARCHAR},
             #{turnoverDay, jdbcType=BIGINT},
             #{priceDay, jdbcType=FLOAT},
             #{extentDay, jdbcType=VARCHAR},
+            #{day, jdbcType=DATE},
             #{calculateDate, jdbcType=TIMESTAMP}
         )
     </insert>
 
-    <insert id="insertBatch" parameterType="java.util.List">
-        insert into info_turnover_day (stock_code, turnover_day, price_day, extent_day, calculate_date)
+    <insert id="insertBatch" parameterType="java.util.List"
+            useGeneratedKeys="true" keyProperty="turnoverDayId">
+        insert into info_turnover_day (stock_code, turnover_day, price_day, extent_day, day, calculate_date)
         values
         <foreach collection="tds" item="td" index="index" separator=",">
             (
@@ -32,6 +35,7 @@
             #{td.turnoverDay, jdbcType=BIGINT},
             #{td.priceDay, jdbcType=FLOAT},
             #{td.extentDay, jdbcType=VARCHAR},
+            #{day, jdbcType=DATE},
             #{td.calculateDate, jdbcType=TIMESTAMP}
             )
         </foreach>
@@ -44,7 +48,12 @@
             and stock_code = #{stockCode}
         </if>
         <if test="startTime != null">
-            <![CDATA[and calculate_date >= #{startTime}]]>
+            <![CDATA[and day >= #{startTime}]]>
         </if>
     </select>
+
+    <update id="update">
+        UPDATE info_turnover_day SET price_day = #{priceDay}
+        WHERE stock_code = #{stockCode} and day = #{day}
+    </update>
 </mapper>
