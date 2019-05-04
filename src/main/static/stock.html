@@ -12,12 +12,11 @@
     <!-- 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-    <script src="https://unpkg.com/vue-chartjs/dist/vue-chartjs.min.js"></script>
 </head>
 
 <body>
     <div id="app">
-        <el-row>
+        <el-row style="width:43%;">
             <el-col :span="2.5">
                 <div class="grid-content bg-purple">
                     起始时间：
@@ -52,7 +51,7 @@
         </el-row>
 
 
-        <table width="600px" border="1" cellpadding="0" cellspacing="0" bordercolor="#0000"
+        <table style="width:44%;" border="1" cellpadding="0" cellspacing="0" bordercolor="#0000"
             style="border-collapse:collapse;">
             <tr>
                 <td>stockName</td>
@@ -63,19 +62,20 @@
             </tr>
             <tr v-for="stock in stocks">
                 <td>{{ stock.stockName  }}</td>
-                <td>{{ stock.stockCode  }}</td>
+                <td v-on:click="stockTureover(stock.stockCode, value1)">{{ stock.stockCode  }}</td>
                 <td>{{ stock.price  }}</td>
                 <td>{{ stock.current  }}</td>
                 <td>{{ stock.percent  }}</td>
             </tr>
         </table>
     </div>
-   
     <div style="width:45%;">
-		<canvas id="myChart"></canvas>
-	</div>
-    
+        <canvas id="myChart"></canvas>
+    </div>
+
     <script type="text/javascript">
+        // var urlPre = window.location.protocol + '//' + window.location.host;
+        var urlPre = 'http://192.168.1.101:9999';
         var vm = new Vue({
             el: '#app',
             data: {
@@ -117,68 +117,93 @@
             methods: {
                 query: function () {
                     this.fullscreenLoading = true;
-                    // setTimeout(() => {
-                    //     this.fullscreenLoading = false;
-                    // }, 10000);
                     var dateValue = this.value1;
-                    if (dateValue === '') {
-                        var timestamp = Date.parse(new Date()) - (10 * 24 * 60 * 60 * 1000);
-                        var date = new Date(timestamp);
-                        Y = date.getFullYear() + '-';
-                        M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-                        D = date.getDate();
-                        dateValue = Y + M + D;
-                    }
                     var top = this.topn;
-                    if (top === '') {
-                        top = '20';
-                    }
                     var sort = this.sort;
-                    if (sort === '') {
-                        sort = 'desc';
-                    }
-                    var urlPre = window.location.protocol + '//' + window.location.host;
                     axios.get(urlPre + '/stock/extent?startDate=' + dateValue + '&top=' + top + '&sort=' + sort).then(res => {
                         this.stocks = res.data;
                         this.fullscreenLoading = false;
-                    }).catch(function (error) {
+                    }).catch(error => {
+                        this.fullscreenLoading = false;
+                        this.$message.error(error.message);
                         console.log(error);
                     });
-
-                }
+                },
+            },
+            created: function () {
+                var timestamp = Date.parse(new Date()) - (10 * 24 * 60 * 60 * 1000);
+                var date = new Date(timestamp);
+                Y = date.getFullYear() + '-';
+                M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                D = date.getDate();
+                this.value1 = Y + M + D;
+                this.topn = 20;
+                this.sort = desc;
             }
         });
-        
+
         var ctx = document.getElementById('myChart').getContext('2d');
-        var data = {
-            labels: ["January", "February", "March", "April", "May", "June", "July"],
-            datasets: [
-                {
-                    label: "My First dataset",
-                    fillColor: "rgba(220,220,220,0.2)",
-                    strokeColor: "rgba(220,220,220,1)",
-                    pointColor: "rgba(220,220,220,1)",
-                    pointStrokeColor: "#fff",
-                    pointHighlightFill: "#fff",
-                    pointHighlightStroke: "rgba(120,220,220,1)",
-                    data: [65, 59, 80, 81, 56, 55, 40]
-                },
-                {
-                    label: "My Second dataset",
-                    fillColor: "rgba(151,187,205,0.2)",
-                    strokeColor: "rgba(151,187,205,1)",
-                    pointColor: "rgba(151,187,205,1)",
-                    pointStrokeColor: "#fff",
-                    pointHighlightFill: "#fff",
-                    pointHighlightStroke: "rgba(151,187,205,1)",
-                    data: [28, 48, 40, 19, 86, 27, 90]
-                }
-            ]
-        };
-        var myChart = new Chart(ctx, {
-            type: 'line',
-            data: data
-        });
+
+        function stockTureover(stockCode, startDate) {
+            axios.get(urlPre + '/stock/turnover?stockCode=' + stockCode + '&startDateStr=' + startDate).then(res => {
+                getStockTureover(res);
+            }).catch(error => {
+                console.log(error);
+            });
+        }
+
+        function getStockTureover(res) {
+            var labels = [];
+            var data1 = [];
+            var data2 = [];
+            for (var i = 0; i < res.data.length; i++) {
+                console.log(res.data[i]);
+                labels.push(formatDate(res.data[i].day))
+                data1.push(res.data[i].turnoverDay)
+                data2.push(res.data[i].priceDay)
+            }
+
+            var data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Turnover",
+                        fillColor: "rgba(220,220,220,0.2)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(120,220,220,1)",
+                        data: data1
+                    }
+                    // ,
+                    // {
+                    //     label: "Price",
+                    //     fillColor: "rgba(151,187,205,0.2)",
+                    //     strokeColor: "rgba(151,187,205,1)",
+                    //     pointColor: "rgba(151,187,205,1)",
+                    //     pointStrokeColor: "#fff",
+                    //     pointHighlightFill: "#fff",
+                    //     pointHighlightStroke: "rgba(151,187,205,1)",
+                    //     data: data2
+                    // }
+                ]
+            };
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: data
+            });
+        }
+        function formatDate(timestamp) {
+            var now = new Date(timestamp);
+            var year = now.getFullYear();
+            var month = now.getMonth() + 1;
+            var date = now.getDate();
+            var hour = now.getHours();
+            var minute = now.getMinutes();
+            var second = now.getSeconds();
+            return year + '' + month + '' + date;
+        } 
     </script>
     <style>
         .el-row {
