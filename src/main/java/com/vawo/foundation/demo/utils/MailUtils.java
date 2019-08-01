@@ -22,6 +22,8 @@ public class MailUtils {
     private final static String AUTH_CODE = "zrjwlrloctzbbhfi";
     private final static String MAIL_ADDR = "phuan520@qq.com";
 
+    private String ip = "";
+
     @Async
     @Scheduled(cron = "0 * * * * ?")
     public void readMail() {
@@ -93,7 +95,21 @@ public class MailUtils {
         return text;
     }
 
-    private void send(String ip) throws MessagingException {
+    @Async
+    @Scheduled(cron = "0 * * * * ?")
+    public void getIp() {
+        try {
+            String publicip = IpUtils.publicip();
+            if (!StringUtils.equals(ip, publicip)) {
+                ip = publicip;
+                send(ip);
+            }
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void send(String ip) throws MessagingException {
         Properties properties = new Properties();
         properties.put("mail.transport.protocol", "smtp");// 连接协议
         properties.put("mail.smtp.host", "smtp.qq.com");// 主机名

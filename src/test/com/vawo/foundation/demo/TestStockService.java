@@ -14,10 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = StockServiceApplication.class)//这里是启动类
@@ -77,6 +75,8 @@ public class TestStockService {
     //        @Test
     public void testReadMail() {
         mailUtils.readMail();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> cmap = new ConcurrentHashMap<>();
     }
 
     // @Test
