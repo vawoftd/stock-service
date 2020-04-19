@@ -24,8 +24,8 @@ public class MailUtils {
 
     private String ip = "";
 
-    @Async
-    @Scheduled(cron = "0 * * * * ?")
+//    @Async
+//    @Scheduled(cron = "0 * * * * ?")
     public void readMail() {
         Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
         final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory"; //ssl加密,jdk1.8无法使用

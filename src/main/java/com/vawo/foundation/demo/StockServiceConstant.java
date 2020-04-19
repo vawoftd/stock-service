@@ -14,10 +14,18 @@ public class StockServiceConstant {
      */
     public static final DateFormat DATE_FORMAT_YMD = new SimpleDateFormat("yyyy-MM-dd");
 
-    public static final String[] STOCK_PREFIX = {"sz300", "sh600", "sh601", "sh603", "sz002", "sz000"};
-    public static final String STOCK_URL = "http://hq.sinajs.cn/list=%s";
     /**
-     * 个股交易数据采集url，（参数：编号、分钟间隔（5、15、30、60）、均值（5、10、15、20、25）、查询个数点（最大值242））
+     * 每日涨停，redis hash，date->{stock:value}
      */
-    public static final String DATA_COLLECT_URL = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=%s&scale=60&ma=5&datalen=4";
+
+    public static final String STOCK_LIMIT_UP = "Stock:Limit:Up:%s";
+    /**
+     * 每日跌停，redis hash，date->{stock:value}
+     */
+
+    public static final String STOCK_LIMIT_DOWN = "Stock:Limit:Down:%s";
+    /**
+     * 个股概念，redis list，stock->list
+     */
+    public static final String STOCK_CONCEPT_DETAIL = "Stock:Concept:Detail:%s";
 }

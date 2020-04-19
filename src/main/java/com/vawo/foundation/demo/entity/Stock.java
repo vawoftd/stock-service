@@ -1,41 +1,47 @@
 package com.vawo.foundation.demo.entity;
 
-import java.util.Date;
+import com.alibaba.fastjson.annotation.JSONField;
+
+import java.util.List;
 
 public class Stock {
-    private String stockCode;
-    private String stockName;
-    private Date collectTime;
-
-    public Stock() {
-    }
-
-    public Stock(String stockCode, String stockName) {
-        this.stockCode = stockCode;
-        this.stockName = stockName;
-    }
-
-    public String getStockCode() {
-        return stockCode;
-    }
-
-    public void setStockCode(String stockCode) {
-        this.stockCode = stockCode;
-    }
-
-    public String getStockName() {
-        return stockName;
-    }
-
-    public void setStockName(String stockName) {
-        this.stockName = stockName;
-    }
-
-    public Date getCollectTime() {
-        return collectTime;
-    }
-
-    public void setCollectTime(Date collectTime) {
-        this.collectTime = collectTime;
-    }
+    @JSONField(alternateNames = "trade_date")
+    private String tradeDate;
+    @JSONField(alternateNames = "ts_code")
+    private String tsCode;
+    @JSONField(alternateNames = "name")
+    private String name;
+    @JSONField(alternateNames = "close")
+    private float close;
+    @JSONField(alternateNames = "pct_chg")
+    private float pctChg;
+    @JSONField(alternateNames = "amp")
+    private float amp;
+    @JSONField(alternateNames = "fc_ratio")
+    private float fcRatio;
+    @JSONField(alternateNames = "fl_ratio")
+    private float flRatio;
+    @JSONField(alternateNames = "fd_amount")
+    private double fdAmount;
+    @JSONField(alternateNames = "first_time")
+    private String firstTime;
+    @JSONField(alternateNames = "last_time")
+    private String lastTime;
+    @JSONField(alternateNames = "open_times")
+    private int openTimes;
+    @JSONField(alternateNames = "strth")
+    private float strth;
+    @JSONField(alternateNames = "limit")
+    private String limit;
+    @JSONField(alternateNames = "symbol")
+    private String symble;
+    @JSONField(alternateNames = "area")
+    private String area;
+    @JSONField(alternateNames = "industry")
+    private String industry;
+    @JSONField(alternateNames = "list_date")
+    private String listDate;
+    @JSONField(alternateNames = "limit_num")
+    private int limitNum;
+    private List<String> concept;
 }

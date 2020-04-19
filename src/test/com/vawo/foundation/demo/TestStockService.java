@@ -1,9 +1,6 @@
 package com.vawo.foundation.demo;
 
-import com.vawo.foundation.demo.dao.StockMapper;
-import com.vawo.foundation.demo.dao.StockRecordMapper;
 import com.vawo.foundation.demo.entity.Stock;
-import com.vawo.foundation.demo.entity.StockExtent;
 import com.vawo.foundation.demo.entity.StockRecord;
 import com.vawo.foundation.demo.service.StockService;
 import com.vawo.foundation.demo.utils.MailUtils;
