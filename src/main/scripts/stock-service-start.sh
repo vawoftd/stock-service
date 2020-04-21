@@ -20,11 +20,11 @@ fi
 CONF_DIR=./config:./static
 LIB_DIR=./lib
 LIB_JARS=`ls $LIB_DIR|grep .jar|awk '{print "'$LIB_DIR'/"$0}'|tr "\n" ":"`
-JAVA_OPTS=" -Djava.net.preferIPv4Stack=true -Dfile.encoding=utf-8"
-JAVA_MEM_OPTS=" -server -Xms2g -Xmx2g -XX:SurvivorRatio=2 -XX:+UseParallelGC "
+JAVA_OPTS=" -Djava.net.preferIPv4Stack=true -Dfile.encoding=utf-8 --spring.profiles.active=prd"
+JAVA_MEM_OPTS=" -server -Xms16m -Xmx1g -XX:SurvivorRatio=2 -XX:+UseParallelGC "
 
 #START_CMD=$BIN_DIR/$BINFILE
-BINMAIN=com.vawo.foundation.demo.StockServiceApplication
+BINMAIN=com.vawo.foundation.stock.StockServiceApplication
 START_CMD="java $JAVA_OPTS $JAVA_MEM_OPTS -classpath $CONF_DIR:$LIB_JARS $BINMAIN"
 STOP_CMD="kill $PID"
 MONITOR_INTERVAL=5
@@ -77,7 +77,7 @@ start_monitor() {
     sleep $MONITOR_INTERVAL
   done &
   MONITOR_PID=$!
-  echo "monitor pid SenseFaceSync-$!"
+  echo "monitor pid $BINFILE-$!"
   echo $! > $MONITOR_PIDFILE
 }
 
