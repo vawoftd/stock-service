@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("stock")
-@Api(description = "服务接口")
+@Api(description = "Queen cycle")
 public class StockController {
 
     private static final Logger logger = LoggerFactory.getLogger(StockController.class);
@@ -23,9 +23,9 @@ public class StockController {
     @Autowired
     private StockService stockService;
 
-    @ApiOperation(value = "获取数据", notes = "获取数据", httpMethod = "GET",
+    @ApiOperation(value = "Queen cycle", notes = "Queen cycle", httpMethod = "GET",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE, response = ResponseEntity.class)
-    @GetMapping(value = "/limit")
+    @GetMapping(value = "/queen-cycle")
     public BaseResult<?> listStockLimitDay(
             @ApiParam(defaultValue = "20200301") @RequestParam String startDate,
             @ApiParam(defaultValue = "20200401") @RequestParam String endDate
@@ -33,14 +33,12 @@ public class StockController {
         return BaseResultUtils.buildBaseResult(stockService.listStockLimitDay(startDate, endDate));
     }
 
-    @ApiOperation(value = "stock extent", notes = "stock extent", httpMethod = "GET",
+    @ApiOperation(value = "Trade day detail", notes = "Trade day detail", httpMethod = "GET",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE, response = ResponseEntity.class)
-    @RequestMapping(value = "/extent", method = RequestMethod.GET)
-    public BaseResult<?> calPercent(@ApiParam(defaultValue = "2019-04-20") @RequestParam String startDate,
-                                    @ApiParam(defaultValue = "20") @RequestParam Integer top,
-                                    @ApiParam(defaultValue = "asc", allowableValues = "asc, desc") @RequestParam String sort) {
-        startDate = startDate + " 00:00:00";
-        return BaseResultUtils.buildEmptyBaseResult();
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    public BaseResult<?> tradeDayDetail(@ApiParam(defaultValue = "20200301") @RequestParam String tradeDay
+    ) {
+        return BaseResultUtils.buildBaseResult(stockService.listStock(tradeDay));
     }
 
     @ApiOperation(value = "stock turnvoer", notes = "stock turnvoer", httpMethod = "GET",

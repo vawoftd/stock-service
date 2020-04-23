@@ -17,10 +17,9 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class StockServiceImpl implements StockService {
@@ -28,9 +27,6 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    private BaseResultRestClient restClient;
 
     protected RestTemplate restTemplate = new RestTemplate();
 
@@ -61,6 +57,16 @@ public class StockServiceImpl implements StockService {
         return list;
     }
 
+    @Override
+    public List<Stock> listStock(String tradeDay) {
+        ArrayList<Stock> list = Lists.newArrayList();
+        List<Object> limitUp = redisTemplate.opsForHash().values(String.format(StockServiceConstant.STOCK_LIMIT_UP, tradeDay));
+        limitUp.forEach(u -> {
+            list.add(JSON.parseObject(u.toString(), Stock.class));
+        });
+        return list;
+    }
+
     public List<String> getCal(String startDate, String endDate) {
         String url = "http://api.waditu.com";
         TushareParam param = new TushareParam("trade_cal", token);
@@ -85,30 +91,5 @@ public class StockServiceImpl implements StockService {
             logger.error("[Error] >>> error msg: {}", e.getMessage());
         }
         return list;
-    }
-
-    private List<String> getDays(String startTime, String endTime) {
-        // 返回的日期集合
-        List<String> days = new ArrayList<>();
-        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        try {
-            Date start = dateFormat.parse(startTime);
-            Date end = dateFormat.parse(endTime);
-
-            Calendar tempStart = Calendar.getInstance();
-            tempStart.setTime(start);
-
-            Calendar tempEnd = Calendar.getInstance();
-            tempEnd.setTime(end);
-            tempEnd.add(Calendar.DATE, +1);// 日期加1(包含结束)
-            while (tempStart.before(tempEnd)) {
-                days.add(dateFormat.format(tempStart.getTime()));
-                tempStart.add(Calendar.DAY_OF_YEAR, 1);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return days;
     }
 }

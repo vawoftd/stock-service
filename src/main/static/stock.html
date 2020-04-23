@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>ST</title>
-    <link rel="icon" type="image/x-icon" href="/images/xx.icon" />
+    <!-- <link rel="icon" type="image/x-icon" href="/images/xx.icon" /> -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- 引入样式 -->
@@ -19,27 +19,16 @@
         <el-row style="width:45%;">
             <el-col :span="2.5">
                 <div class="grid-content bg-purple">
-                    起始时间：
-                    <el-date-picker v-model="value1" type="date" value-format="yyyy-MM-dd" placeholder="选择日期">
+                    开始时间：
+                    <el-date-picker v-model="value1" type="date" value-format="yyyyMMdd" placeholder="选择日期">
                     </el-date-picker>
                 </div>
             </el-col>
             <el-col :span="2.5">
                 <div class="grid-content bg-purple-light">
-                    Top N:
-                    <el-select v-model="topn" clearable placeholder="Top N">
-                        <el-option v-for="item in topns" :key="item.value" :label="item.label" :value="item.value">
-                        </el-option>
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col :span="2.5">
-                <div class="grid-content bg-purple-light">
-                    涨跌幅:
-                    <el-select v-model="sort" placeholder="涨跌幅">
-                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-                        </el-option>
-                    </el-select>
+                    开始时间：
+                    <el-date-picker v-model="value2" type="date" value-format="yyyyMMdd" placeholder="选择日期">
+                    </el-date-picker>
                 </div>
             </el-col>
             <el-col :span="1">
@@ -51,86 +40,33 @@
         </el-row>
 
         <el-row>
-            <el-col :span="12">
-                <div class="grid-content bg-purple">
-                    <table style="width:95%;" border="1" cellpadding="0" cellspacing="0" bordercolor="#0000"
-                        style="border-collapse:collapse;">
-                        <tr>
-                            <td>stockName</td>
-                            <td>stockCode</td>
-                            <td>price</td>
-                            <td>current</td>
-                            <td>percent</td>
-                        </tr>
-                        <tr v-for="stock in stocks">
-                            <td>{{ stock.stockName  }}</td>
-                            <td v-on:click="stockTureover(stock.stockCode, value1)">{{ stock.stockCode  }}</td>
-                            <td>{{ stock.price  }}</td>
-                            <td>{{ stock.current  }}</td>
-                            <td>{{ stock.percent  }}</td>
-                        </tr>
-                    </table>
+            <div class="grid-content bg-purple-light">
+                <div style="width:95%;">
+                    <canvas id="myChart"></canvas>
                 </div>
-            </el-col>
-            <el-col :span="12">
-                <div class="grid-content bg-purple-light">
-                    <div style="width:95%;">
-                        <canvas id="myChart"></canvas>
-                    </div>
-                </div>
-            </el-col>
+            </div>
         </el-row>
     </div>
 
     <script type="text/javascript">
-        var urlPre = window.location.protocol + '//' + window.location.host;
-        // var urlPre = 'http://192.168.1.101:9999';
+        // var urlPre = window.location.protocol + '//' + window.location.host;
+        var urlPre = 'http://127.0.0.1:9999';
         var vm = new Vue({
             el: '#app',
             data: {
                 stocks: [],
                 value1: '',
-                topn: '',
-                topns: [{
-                    value: '10',
-                    label: '10'
-                }, {
-                    value: '20',
-                    label: '20'
-                }, {
-                    value: '50',
-                    label: '50'
-                }, {
-                    value: '100',
-                    label: '100'
-                }, {
-                    value: '200',
-                    label: '200'
-                }, {
-                    value: '500',
-                    label: '500'
-                }, {
-                    value: '1000',
-                    label: '1000'
-                }],
-                sort: 'asc',
-                options: [{
-                    value: 'asc',
-                    label: '涨幅'
-                }, {
-                    value: 'desc',
-                    label: '跌幅'
-                }],
+                value2: '',
                 fullscreenLoading: false
             },
             methods: {
                 query: function () {
                     this.fullscreenLoading = true;
-                    var dateValue = this.value1;
-                    var top = this.topn;
-                    var sort = this.sort;
-                    axios.get(urlPre + '/stock/extent?startDate=' + dateValue + '&top=' + top + '&sort=' + sort).then(res => {
-                        this.stocks = res.data;
+                    var startDate = this.value1;
+                    var endDate = this.value2;
+                    axios.get(urlPre + '/stock/queen-cycle?startDate=' + startDate + '&endDate=' + endDate).then(res => {
+                        // this.stocks = res.data;
+                        getStockTureover(res);
                         this.fullscreenLoading = false;
                     }).catch(error => {
                         this.fullscreenLoading = false;
@@ -142,41 +78,47 @@
             created: function () {
                 var timestamp = Date.parse(new Date()) - (10 * 24 * 60 * 60 * 1000);
                 var date = new Date(timestamp);
-                Y = date.getFullYear() + '-';
-                M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                Y = date.getFullYear();
+                M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
                 D = date.getDate();
                 this.value1 = Y + M + D;
-                this.topn = 20;
-                this.sort = desc;
             }
         });
-
-        var ctx = document.getElementById('myChart').getContext('2d');
-
-        function stockTureover(stockCode, startDate) {
-            axios.get(urlPre + '/stock/turnover?stockCode=' + stockCode + '&startDateStr=' + startDate).then(res => {
-                getStockTureover(res);
-            }).catch(error => {
-                console.log(error);
-            });
+        var c = document.getElementById('myChart');
+        var ctx = null;
+        if (c != null) {
+            ctx = c.getContext('2d');
         }
+
+        // function stockTureover(startDate, endDate) {
+        //     axios.get(urlPre + '/stock/queen-cycle?startDate=' + startDate + '&endDate=' + endDate).then(res => {
+        //         getStockTureover(res);
+        //     }).catch(error => {
+        //         console.log(error);
+        //     });
+        // }
 
         function getStockTureover(res) {
             var labels = [];
             var data1 = [];
             var data2 = [];
-            for (var i = 0; i < res.data.length; i++) {
-                console.log(res.data[i]);
-                labels.push(formatDate(res.data[i].day))
-                data1.push(res.data[i].turnoverDay)
-                data2.push(res.data[i].priceDay)
+            var data3 = [];
+            var data4 = [];
+            var stData = res.data.data;
+            for (var i = 0; i < stData.length; i++) {
+                console.log(stData[i]);
+                labels.push(stData[i].tradeDate)
+                data1.push(stData[i].limitUpCount)
+                data2.push(stData[i].continuousLimit)
+                data3.push(stData[i].highestLimit)
+                data4.push(stData[i].limitDownCount)
             }
 
             var data = {
                 labels: labels,
                 datasets: [
                     {
-                        label: "Turnover",
+                        label: "Queen Mood Cycle",
                         fillColor: "rgba(220,220,220,0.2)",
                         strokeColor: "rgba(220,220,220,1)",
                         pointColor: "rgba(220,220,220,1)",
@@ -184,18 +126,37 @@
                         pointHighlightFill: "#fff",
                         pointHighlightStroke: "rgba(120,220,220,1)",
                         data: data1
+                    },
+                    {
+                        label: "Price",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: data2
+                    },
+                    {
+                        label: "Price1",
+                        fillColor: "rgba(151,2,205,0.2)",
+                        strokeColor: "rgba(151,2,205,1)",
+                        pointColor: "rgba(151,2,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,2,205,1)",
+                        data: data3
+                    },
+                    {
+                        label: "Price2",
+                        fillColor: "rgba(2,187,205,0.2)",
+                        strokeColor: "rgba(2,187,205,1)",
+                        pointColor: "rgba(2,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(2,187,205,1)",
+                        data: data4
                     }
-                    // ,
-                    // {
-                    //     label: "Price",
-                    //     fillColor: "rgba(151,187,205,0.2)",
-                    //     strokeColor: "rgba(151,187,205,1)",
-                    //     pointColor: "rgba(151,187,205,1)",
-                    //     pointStrokeColor: "#fff",
-                    //     pointHighlightFill: "#fff",
-                    //     pointHighlightStroke: "rgba(151,187,205,1)",
-                    //     data: data2
-                    // }
                 ]
             };
             var myChart = new Chart(ctx, {
