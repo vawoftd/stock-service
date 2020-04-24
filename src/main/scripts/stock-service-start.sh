@@ -20,7 +20,7 @@ fi
 CONF_DIR=./config:./static
 LIB_DIR=./lib
 LIB_JARS=`ls $LIB_DIR|grep .jar|awk '{print "'$LIB_DIR'/"$0}'|tr "\n" ":"`
-JAVA_OPTS=" -Djava.net.preferIPv4Stack=true -Dfile.encoding=utf-8 --spring.profiles.active=prd"
+JAVA_OPTS=" -Djava.net.preferIPv4Stack=true -Dfile.encoding=utf-8"
 JAVA_MEM_OPTS=" -server -Xms16m -Xmx1g -XX:SurvivorRatio=2 -XX:+UseParallelGC "
 
 #START_CMD=$BIN_DIR/$BINFILE
