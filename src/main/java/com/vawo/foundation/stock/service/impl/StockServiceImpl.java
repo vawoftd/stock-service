@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -40,15 +41,17 @@ public class StockServiceImpl implements StockService {
             StockLimitDay sld = new StockLimitDay();
             sld.setTradeDate(d);
             List<Object> limitUp = redisTemplate.opsForHash().values(String.format(StockServiceConstant.STOCK_LIMIT_UP, d));
-            limitUp.forEach(u -> {
-                Stock stock = JSON.parseObject(u.toString(), Stock.class);
-                if (sld.getHighestLimit() < stock.getLimitNum()) {
-                    sld.setHighestLimit(stock.getLimitNum());
-                }
-                if (stock.getLimitNum() > 1) {
-                    sld.setContinuousLimit(sld.getContinuousLimit() + 1);
-                }
-            });
+            if (!CollectionUtils.isEmpty(limitUp)) {
+                limitUp.forEach(u -> {
+                    Stock stock = JSON.parseObject(u.toString(), Stock.class);
+                    if (sld.getHighestLimit() < stock.getLimitNum()) {
+                        sld.setHighestLimit(stock.getLimitNum());
+                    }
+                    if (stock.getLimitNum() > 1) {
+                        sld.setContinuousLimit(sld.getContinuousLimit() + 1);
+                    }
+                });
+            }
             sld.setLimitUpCount(limitUp.size());
             List<Object> limitDown = redisTemplate.opsForHash().values(String.format(StockServiceConstant.STOCK_LIMIT_DOWN, d));
             sld.setLimitDownCount(limitDown.size());

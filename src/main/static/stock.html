@@ -11,22 +11,21 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script src="echarts.min.js"></script>
 </head>
 
 <body>
     <div id="app">
-        <el-row style="width:45%;">
+        <el-row style="width:55%;">
             <el-col :span="2.5">
                 <div class="grid-content bg-purple">
-                    开始时间：
+                    日期：
                     <el-date-picker v-model="value1" type="date" value-format="yyyyMMdd" placeholder="选择日期">
                     </el-date-picker>
                 </div>
             </el-col>
             <el-col :span="2.5">
                 <div class="grid-content bg-purple-light">
-                    开始时间：
                     <el-date-picker v-model="value2" type="date" value-format="yyyyMMdd" placeholder="选择日期">
                     </el-date-picker>
                 </div>
@@ -38,19 +37,48 @@
                 </div>
             </el-col>
         </el-row>
-
         <el-row>
-            <div class="grid-content bg-purple-light">
-                <div style="width:95%;">
-                    <canvas id="myChart"></canvas>
+            <el-col :span="10">
+                <div class="grid-content bg-purple">
+                    <div id="myChart" class="myChart" style="width: 100%;height:500px;">
+                        <div id="main" onmousedown="mousedown()"></div>
+                    </div>
                 </div>
-            </div>
+            </el-col>
+            <el-col :span="14">
+                <div class="grid-content bg-purple-light">
+                    <table style="width:100%;" border="1px" cellpadding="0" cellspacing="0" bordercolor="#B5B5B5"
+                        style="border-collapse:collapse;">
+                        <tr>
+                            <td>名称</td>
+                            <td>代码</td>
+                            <td>现价</td>
+                            <td>首次涨停事件</td>
+                            <td>振幅</td>
+                            <td>连续涨停次数</td>
+                            <td>封单手数/流通股本</td>
+                            <td>强度</td>
+                        </tr>
+                        <tr v-for="stock in stocks">
+                            <td>{{ stock.name  }}</td>
+                            <td v-on:click="forward(stock.symble)"><a>{{ stock.symble  }}</a></td>
+                            <td>{{ stock.close  }}</td>
+                            <td>{{ stock.firstTime  }}</td>
+                            <td>{{ stock.amp  }}</td>
+                            <td>{{ stock.limitNum  }}</td>
+                            <td>{{ stock.flRatio  }}</td>
+                            <td>{{ stock.strth  }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </el-col>
         </el-row>
     </div>
 
+
     <script type="text/javascript">
-        // var urlPre = window.location.protocol + '//' + window.location.host;
-        var urlPre = 'http://127.0.0.1:9999';
+        var urlPre = window.location.protocol + '//' + window.location.host;
+        // var urlPre = 'http://49.232.82.238:9999';
         var vm = new Vue({
             el: '#app',
             data: {
@@ -65,7 +93,6 @@
                     var startDate = this.value1;
                     var endDate = this.value2;
                     axios.get(urlPre + '/stock/queen-cycle?startDate=' + startDate + '&endDate=' + endDate).then(res => {
-                        // this.stocks = res.data;
                         getStockTureover(res);
                         this.fullscreenLoading = false;
                     }).catch(error => {
@@ -74,29 +101,43 @@
                         console.log(error);
                     });
                 },
+                search: function (tradeDate) {
+                    this.fullscreenLoading = true;
+                    axios.get(urlPre + '/stock/detail?tradeDay=' + tradeDate).then(res => {
+                        this.stocks = res.data.data;
+                        this.fullscreenLoading = false;
+                    }).catch(error => {
+                        this.fullscreenLoading = false;
+                        this.$message.error(error.message);
+                        console.log(error);
+                    });
+                }
             },
             created: function () {
-                var timestamp = Date.parse(new Date()) - (10 * 24 * 60 * 60 * 1000);
+                var timestamp = Date.parse(new Date()) - (30 * 24 * 60 * 60 * 1000);
                 var date = new Date(timestamp);
                 Y = date.getFullYear();
                 M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
+                M2 = (new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : new Date().getMonth() + 1);
                 D = date.getDate();
+                D2 = new Date().getDate();
                 this.value1 = Y + M + D;
+                this.value2 = Y + M2 + D2;
+                stockTureover(this.value1, this.value2);
+            },
+            mounted() {
+                // methods里面定义的方法, 需要赋值给window
+                window.search = this.search;
             }
         });
-        var c = document.getElementById('myChart');
-        var ctx = null;
-        if (c != null) {
-            ctx = c.getContext('2d');
-        }
 
-        // function stockTureover(startDate, endDate) {
-        //     axios.get(urlPre + '/stock/queen-cycle?startDate=' + startDate + '&endDate=' + endDate).then(res => {
-        //         getStockTureover(res);
-        //     }).catch(error => {
-        //         console.log(error);
-        //     });
-        // }
+        function stockTureover(startDate, endDate) {
+            axios.get(urlPre + '/stock/queen-cycle?startDate=' + startDate + '&endDate=' + endDate).then(res => {
+                getStockTureover(res);
+            }).catch(error => {
+                console.log(error);
+            });
+        }
 
         function getStockTureover(res) {
             var labels = [];
@@ -114,56 +155,102 @@
                 data4.push(stData[i].limitDownCount)
             }
 
-            var data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Queen Mood Cycle",
-                        fillColor: "rgba(220,220,220,0.2)",
-                        strokeColor: "rgba(220,220,220,1)",
-                        pointColor: "rgba(220,220,220,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(120,220,220,1)",
-                        data: data1
+            var myChart = echarts.init(document.getElementById('myChart'));
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '周期图'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['涨停数', '连版数', '最高空间版', '跌停数']
+                },
+                color: ['#FF0000', '#33cc33'],
+                xAxis: {
+                    data: labels,
+                    type: 'category'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true,
+                    width: '90%',
+                    height: '80%'
+                },
+                yAxis: {},
+                series: [{
+                    name: '涨停数',
+                    type: 'line',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: "#FF0000"
                     },
-                    {
-                        label: "Price",
-                        fillColor: "rgba(151,187,205,0.2)",
-                        strokeColor: "rgba(151,187,205,1)",
-                        pointColor: "rgba(151,187,205,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(151,187,205,1)",
-                        data: data2
+                    lineStyle: {
+                        color: "#FF0000"
                     },
-                    {
-                        label: "Price1",
-                        fillColor: "rgba(151,2,205,0.2)",
-                        strokeColor: "rgba(151,2,205,1)",
-                        pointColor: "rgba(151,2,205,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(151,2,205,1)",
-                        data: data3
+                    smooth: 0.3,
+                    data: data1
+                },
+                {
+                    name: '连版数',
+                    type: 'bar',
+                    barWidth: '20%',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: "#EE1289"
                     },
-                    {
-                        label: "Price2",
-                        fillColor: "rgba(2,187,205,0.2)",
-                        strokeColor: "rgba(2,187,205,1)",
-                        pointColor: "rgba(2,187,205,1)",
-                        pointStrokeColor: "#fff",
-                        pointHighlightFill: "#fff",
-                        pointHighlightStroke: "rgba(2,187,205,1)",
-                        data: data4
-                    }
-                ]
+                    itemStyle: {
+                        color: "#EE1289"
+                    },
+                    data: data2
+                },
+                {
+                    name: '最高空间版',
+                    type: 'bar',
+                    barGap: 0,
+                    barWidth: '20%',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: "#FF7F00"
+                    },
+                    itemStyle: {
+                        color: "#FF7F00"
+                    },
+                    data: data3
+                },
+                {
+                    name: '跌停数',
+                    type: 'line',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: "#33cc33"
+                    },
+                    lineStyle: {
+                        color: "#33cc33"
+                    },
+                    smooth: 0.3,
+                    data: data4
+                }]
             };
-            var myChart = new Chart(ctx, {
-                type: 'line',
-                data: data
+
+            myChart.setOption(option);
+            myChart.on('click', function (params) {
+                search(encodeURIComponent(params.name));
             });
         }
+
+        function forward(symble) {
+            window.open('http://stockpage.10jqka.com.cn/' + symble);
+        }
+
         function formatDate(timestamp) {
             var now = new Date(timestamp);
             var year = now.getFullYear();
@@ -176,6 +263,10 @@
         } 
     </script>
     <style>
+        .myChart {
+            background: #f0f6ff;
+        }
+
         .el-row {
             margin-bottom: 20px;
 
@@ -185,7 +276,11 @@
         }
 
         .el-col {
-            border-radius: 40px;
+            border-radius: 4px;
+        }
+
+        .bg-purple-dark {
+            background: #99a9bf;
         }
 
         .bg-purple {
@@ -193,17 +288,21 @@
         }
 
         .bg-purple-light {
-            background: #e5e9f2;
+            background: #e9f3f3;
         }
 
         .grid-content {
-            border-radius: 4px;
-            min-height: 36px;
+            border-radius: 1px;
+            min-height: 5px;
         }
 
-        .small {
-            width: 500px;
-            height: 500px;
+        .row-bg {
+            padding: 10px 0;
+            background-color: #f9fafc;
+        }
+
+        td {
+            text-align: center;
         }
     </style>
 </body>
