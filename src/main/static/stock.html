@@ -32,23 +32,25 @@
             </el-col>
             <el-col :span="1">
                 <div class="grid-content bg-purple">
-                    <el-button type="primary" plain @click="query" v-loading.fullscreen.lock="fullscreenLoading">Query
+                    <el-button type="primary" plain @click="query" v-loading.fullscreen.lock="fullscreenLoading">查询
                     </el-button>
                 </div>
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="10">
+            <el-col :span="24">
                 <div class="grid-content bg-purple">
                     <div id="myChart" class="myChart" style="width: 100%;height:500px;">
                         <div id="main" onmousedown="mousedown()"></div>
                     </div>
                 </div>
             </el-col>
-            <el-col :span="14">
+        </el-row>
+        <el-row>
+            <el-col :span="24">
                 <div class="grid-content bg-purple-light">
                     <table style="width:100%;" border="1px" cellpadding="0" cellspacing="0" bordercolor="#B5B5B5"
-                        style="border-collapse:collapse;">
+                           style="border-collapse:collapse;">
                         <tr>
                             <td>名称</td>
                             <td>代码</td>
@@ -61,7 +63,7 @@
                         </tr>
                         <tr v-for="stock in stocks">
                             <td>{{ stock.name  }}</td>
-                            <td v-on:click="forward(stock.symble)"><a>{{ stock.symble  }}</a></td>
+                            <td v-on:click="forward(stock.symble)"><a href="">{{ stock.symble  }}</a></td>
                             <td>{{ stock.close  }}</td>
                             <td>{{ stock.firstTime  }}</td>
                             <td>{{ stock.amp  }}</td>
@@ -77,8 +79,8 @@
 
 
     <script type="text/javascript">
-        var urlPre = window.location.protocol + '//' + window.location.host;
-        // var urlPre = 'http://49.232.82.238:9999';
+<!--        var urlPre = window.location.protocol + '//' + window.location.host;-->
+        var urlPre = 'http://49.232.82.238:9999';
         var vm = new Vue({
             el: '#app',
             data: {
@@ -114,8 +116,12 @@
                 }
             },
             created: function () {
-                var timestamp = Date.parse(new Date()) - (30 * 24 * 60 * 60 * 1000);
+                var timestamp = Date.parse(new Date()) - (61 * 24 * 60 * 60 * 1000);
                 var date = new Date(timestamp);
+
+                var dt = new Date();
+                var dt1 = dt.setMonth(dt.getMonth()-2);
+
                 Y = date.getFullYear();
                 M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
                 M2 = (new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : new Date().getMonth() + 1);
@@ -260,7 +266,27 @@
             var minute = now.getMinutes();
             var second = now.getSeconds();
             return year + '' + month + '' + date;
-        } 
+        }
+
+        function dateFormat(fmt, date) {
+            let ret;
+            const opt = {
+        "Y+": date.getFullYear().toString(),        // 年
+        "m+": (date.getMonth() + 1).toString(),     // 月
+        "d+": date.getDate().toString(),            // 日
+        "H+": date.getHours().toString(),           // 时
+        "M+": date.getMinutes().toString(),         // 分
+        "S+": date.getSeconds().toString()          // 秒
+        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+    };
+    for (let k in opt) {
+        ret = new RegExp("(" + k + ")").exec(fmt);
+        if (ret) {
+            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+        };
+    };
+    return fmt;
+}
     </script>
     <style>
         .myChart {
