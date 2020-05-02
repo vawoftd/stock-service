@@ -13,4 +13,6 @@ public class StockLimitDay {
     private int limitDownCount;
     private int highestLimit;
     private int continuousLimit;
+    private String highestTsCode;
+    private String highestTsName;
 }

@@ -9,5 +9,5 @@ import java.util.List;
 public interface StockService {
     List<StockLimitDay> listStockLimitDay(String startDate, String endDate);
 
-    List<Stock> listStock(String tradeDay);
+    List<Stock> listStock(String tradeDay, int type);
 }

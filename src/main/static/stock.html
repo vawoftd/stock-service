@@ -50,7 +50,7 @@
             <el-col :span="24">
                 <div class="grid-content bg-purple-light">
                     <table style="width:100%;" border="1px" cellpadding="0" cellspacing="0" bordercolor="#B5B5B5"
-                           style="border-collapse:collapse;">
+                        style="border-collapse:collapse;">
                         <tr>
                             <td>名称</td>
                             <td>代码</td>
@@ -79,8 +79,9 @@
 
 
     <script type="text/javascript">
-<!--        var urlPre = window.location.protocol + '//' + window.location.host;-->
+        // var urlPre = window.location.protocol + '//' + window.location.host;
         var urlPre = 'http://49.232.82.238:9999';
+        // var urlPre = 'http://127.0.0.1:9999';
         var vm = new Vue({
             el: '#app',
             data: {
@@ -103,9 +104,9 @@
                         console.log(error);
                     });
                 },
-                search: function (tradeDate) {
+                search: function (tradeDate, type) {
                     this.fullscreenLoading = true;
-                    axios.get(urlPre + '/stock/detail?tradeDay=' + tradeDate).then(res => {
+                    axios.get(urlPre + '/stock/detail?tradeDay=' + tradeDate + '&type=' + type).then(res => {
                         this.stocks = res.data.data;
                         this.fullscreenLoading = false;
                     }).catch(error => {
@@ -120,7 +121,7 @@
                 var date = new Date(timestamp);
 
                 var dt = new Date();
-                var dt1 = dt.setMonth(dt.getMonth()-2);
+                var dt1 = dt.setMonth(dt.getMonth() - 2);
 
                 Y = date.getFullYear();
                 M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
@@ -147,6 +148,7 @@
 
         function getStockTureover(res) {
             var labels = [];
+            var labels1 = [];
             var data1 = [];
             var data2 = [];
             var data3 = [];
@@ -155,6 +157,7 @@
             for (var i = 0; i < stData.length; i++) {
                 console.log(stData[i]);
                 labels.push(stData[i].tradeDate)
+                labels1.push(stData[i].highestTsName + "\n" + stData[i].highestTsCode)
                 data1.push(stData[i].limitUpCount)
                 data2.push(stData[i].continuousLimit)
                 data3.push(stData[i].highestLimit)
@@ -175,10 +178,31 @@
                     data: ['涨停数', '连版数', '最高空间版', '跌停数']
                 },
                 color: ['#FF0000', '#33cc33'],
-                xAxis: {
+                xAxis: [{
                     data: labels,
-                    type: 'category'
-                },
+                    type: 'category',
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 45,
+                        margin: 2,
+                        textStyle: {
+                            color: "#222"
+                        }
+                    }
+                }, {
+                    data: labels1,//第二个X轴为数值轴不需要提供数据, 根据数值自适应
+                    type: 'category',
+                    triggerEvent: true,
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 45,
+                        margin: 2,
+                        textStyle: {
+                            color: "#222"
+                        }
+                    }
+                }
+                ],
                 grid: {
                     left: '3%',
                     right: '4%',
@@ -189,6 +213,7 @@
                 },
                 yAxis: {},
                 series: [{
+                    id: 1,
                     name: '涨停数',
                     type: 'line',
                     label: {
@@ -203,6 +228,7 @@
                     data: data1
                 },
                 {
+                    id: 2,
                     name: '连版数',
                     type: 'bar',
                     barWidth: '20%',
@@ -217,6 +243,7 @@
                     data: data2
                 },
                 {
+                    id: 3,
                     name: '最高空间版',
                     type: 'bar',
                     barGap: 0,
@@ -232,6 +259,7 @@
                     data: data3
                 },
                 {
+                    id: 0,
                     name: '跌停数',
                     type: 'line',
                     label: {
@@ -248,9 +276,18 @@
             };
 
             myChart.setOption(option);
+
             myChart.on('click', function (params) {
-                search(encodeURIComponent(params.name));
+                if (params.componentType == "xAxis") {
+                    alert("单击了" + params.value + "x轴标签");
+                } else {
+                    search(encodeURIComponent(params.name), params.seriesId);
+                }
             });
+
+            // myChart.on('click', function (params) {
+            //     search(encodeURIComponent(params.name), params.seriesId);
+            // });
         }
 
         function forward(symble) {
@@ -271,22 +308,22 @@
         function dateFormat(fmt, date) {
             let ret;
             const opt = {
-        "Y+": date.getFullYear().toString(),        // 年
-        "m+": (date.getMonth() + 1).toString(),     // 月
-        "d+": date.getDate().toString(),            // 日
-        "H+": date.getHours().toString(),           // 时
-        "M+": date.getMinutes().toString(),         // 分
-        "S+": date.getSeconds().toString()          // 秒
-        // 有其他格式化字符需求可以继续添加，必须转化成字符串
-    };
-    for (let k in opt) {
-        ret = new RegExp("(" + k + ")").exec(fmt);
-        if (ret) {
-            fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
-        };
-    };
-    return fmt;
-}
+                "Y+": date.getFullYear().toString(),        // 年
+                "m+": (date.getMonth() + 1).toString(),     // 月
+                "d+": date.getDate().toString(),            // 日
+                "H+": date.getHours().toString(),           // 时
+                "M+": date.getMinutes().toString(),         // 分
+                "S+": date.getSeconds().toString()          // 秒
+                // 有其他格式化字符需求可以继续添加，必须转化成字符串
+            };
+            for (let k in opt) {
+                ret = new RegExp("(" + k + ")").exec(fmt);
+                if (ret) {
+                    fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+                };
+            };
+            return fmt;
+        }
     </script>
     <style>
         .myChart {

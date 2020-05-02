@@ -46,27 +46,48 @@ public class StockServiceImpl implements StockService {
                     Stock stock = JSON.parseObject(u.toString(), Stock.class);
                     if (sld.getHighestLimit() < stock.getLimitNum()) {
                         sld.setHighestLimit(stock.getLimitNum());
+                        sld.setHighestTsCode(stock.getTsCode());
+                        sld.setHighestTsName(stock.getName());
                     }
                     if (stock.getLimitNum() > 1) {
                         sld.setContinuousLimit(sld.getContinuousLimit() + 1);
                     }
                 });
+                sld.setLimitUpCount(limitUp.size());
+                List<Object> limitDown = redisTemplate.opsForHash().values(String.format(StockServiceConstant.STOCK_LIMIT_DOWN, d));
+                sld.setLimitDownCount(limitDown.size());
+                list.add(sld);
             }
-            sld.setLimitUpCount(limitUp.size());
-            List<Object> limitDown = redisTemplate.opsForHash().values(String.format(StockServiceConstant.STOCK_LIMIT_DOWN, d));
-            sld.setLimitDownCount(limitDown.size());
-            list.add(sld);
         });
         return list;
     }
 
     @Override
-    public List<Stock> listStock(String tradeDay) {
+    public List<Stock> listStock(String tradeDay, int type) {
+        String key;
+        if(type > 0){
+            key = String.format(StockServiceConstant.STOCK_LIMIT_UP, tradeDay);
+        }else{
+            key = String.format(StockServiceConstant.STOCK_LIMIT_DOWN, tradeDay);
+        }
         ArrayList<Stock> list = Lists.newArrayList();
-        List<Object> limitUp = redisTemplate.opsForHash().values(String.format(StockServiceConstant.STOCK_LIMIT_UP, tradeDay));
-        limitUp.forEach(u -> {
-            list.add(JSON.parseObject(u.toString(), Stock.class));
-        });
+        List<String> values = redisTemplate.<String, String>opsForHash().values(key);
+        for (String u : values) {
+            Stock stock = JSON.parseObject(u, Stock.class);
+            if (type == 0) {
+                list.add(stock);
+            } else if (type == 1) {
+                //今日涨停
+                list.add(stock);
+            } else if (type == 2) {
+                //今日连版
+                if (stock.getLimitNum() > 1) {
+                    list.add(stock);
+                }
+            } else {
+                //最高空间版
+            }
+        }
         return list;
     }
 

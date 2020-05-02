@@ -36,9 +36,11 @@ public class StockController {
     @ApiOperation(value = "Trade day detail", notes = "Trade day detail", httpMethod = "GET",
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE, response = ResponseEntity.class)
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
-    public BaseResult<?> tradeDayDetail(@ApiParam(defaultValue = "20200301") @RequestParam String tradeDay
+    public BaseResult<?> tradeDayDetail(
+            @ApiParam(defaultValue = "20200301") @RequestParam String tradeDay,
+            @ApiParam(defaultValue = "2") @RequestParam(required = false) int type
     ) {
-        return BaseResultUtils.buildBaseResult(stockService.listStock(tradeDay));
+        return BaseResultUtils.buildBaseResult(stockService.listStock(tradeDay, type));
     }
 
     @ApiOperation(value = "stock turnvoer", notes = "stock turnvoer", httpMethod = "GET",
