@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <title>ST</title>
-    <!-- <link rel="icon" type="image/x-icon" href="/images/xx.icon" /> -->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="1.jpg" />
+    <script src="vue.min.js"></script>
+    <script src="axios.min.js"></script>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 引入组件库 -->
@@ -17,61 +17,76 @@
 <body>
     <div id="app">
         <el-row style="width:55%;">
+            <el-col :span="2">
+                <div class="grid-content"></div>
+            </el-col>
             <el-col :span="2.5">
-                <div class="grid-content bg-purple">
-                    日期：
+                <div class="grid-content">
                     <el-date-picker v-model="value1" type="date" value-format="yyyyMMdd" placeholder="选择日期">
                     </el-date-picker>
                 </div>
             </el-col>
             <el-col :span="2.5">
-                <div class="grid-content bg-purple-light">
+                <div class="grid-content">
                     <el-date-picker v-model="value2" type="date" value-format="yyyyMMdd" placeholder="选择日期">
                     </el-date-picker>
                 </div>
             </el-col>
             <el-col :span="1">
-                <div class="grid-content bg-purple">
-                    <el-button type="primary" plain @click="query" v-loading.fullscreen.lock="fullscreenLoading">查询
+                <div class="grid-content">
+                    <el-button type="primary" plain @click="query" v-loading.fullscreen.lock="fullscreenLoading">Search
                     </el-button>
                 </div>
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="24">
-                <div class="grid-content bg-purple">
+            <el-col :span="1">
+                <div class="grid-content"></div>
+            </el-col>
+            <el-col :span="22">
+                <div class="grid-content">
                     <div id="myChart" class="myChart" style="width: 100%;height:500px;">
                         <div id="main" onmousedown="mousedown()"></div>
                     </div>
                 </div>
             </el-col>
+            <el-col :span="1"></el-col>
         </el-row>
         <el-row>
-            <el-col :span="24">
-                <div class="grid-content bg-purple-light">
-                    <table style="width:100%;" border="1px" cellpadding="0" cellspacing="0" bordercolor="#B5B5B5"
-                        style="border-collapse:collapse;">
-                        <tr>
-                            <td>名称</td>
-                            <td>代码</td>
-                            <td>现价</td>
-                            <td>首次涨停事件</td>
-                            <td>振幅</td>
-                            <td>连续涨停次数</td>
-                            <td>封单手数/流通股本</td>
-                            <td>强度</td>
-                        </tr>
-                        <tr v-for="stock in stocks">
-                            <td>{{ stock.name  }}</td>
-                            <td v-on:click="forward(stock.symble)"><a href="">{{ stock.symble  }}</a></td>
-                            <td>{{ stock.close  }}</td>
-                            <td>{{ stock.firstTime  }}</td>
-                            <td>{{ stock.amp  }}</td>
-                            <td>{{ stock.limitNum  }}</td>
-                            <td>{{ stock.flRatio  }}</td>
-                            <td>{{ stock.strth  }}</td>
-                        </tr>
-                    </table>
+            <el-col :span="1">
+                <div class="grid-content"></div>
+            </el-col>
+            <el-col :span="22">
+                <div class="grid-content bg-purple" v-text="tmpName">
+                </div>
+            </el-col>
+            <el-col :span="1"></el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="1">
+                <div class="grid-content"></div>
+            </el-col>
+            <el-col :span="22">
+                <div class="grid-content">
+                    <el-table :data="stocks" border style="width: 100%;"
+                        row-style="height:10px"  v-show="stocks.length > 1">
+                        <el-table-column prop="symble" label="代码">
+                        </el-table-column>
+                        <el-table-column prop="name" label="姓名">
+                        </el-table-column>
+                        <el-table-column prop="close" label="现价">
+                        </el-table-column>
+                        <el-table-column prop="firstTime" sortable label="首次涨停时间">
+                        </el-table-column>
+                        <el-table-column prop="amp" sortable label="振幅">
+                        </el-table-column>
+                        <el-table-column prop="limitNum" sortable label="连续涨停次数">
+                        </el-table-column>
+                        <el-table-column prop="flRatio" sortable label="封单手数/流通股本">
+                        </el-table-column>
+                        <el-table-column prop="strth" sortable label="强度">
+                        </el-table-column>
+                    </el-table>
                 </div>
             </el-col>
         </el-row>
@@ -79,8 +94,8 @@
 
 
     <script type="text/javascript">
-        // var urlPre = window.location.protocol + '//' + window.location.host;
-        var urlPre = 'http://49.232.82.238:9999';
+        var urlPre = window.location.protocol + '//' + window.location.host;
+        // var urlPre = 'http://49.232.82.238:9999';
         // var urlPre = 'http://127.0.0.1:9999';
         var vm = new Vue({
             el: '#app',
@@ -88,7 +103,11 @@
                 stocks: [],
                 value1: '',
                 value2: '',
+                tmpDate: '',
+                tmpName: '',
                 fullscreenLoading: false
+            },
+            computed: {
             },
             methods: {
                 query: function () {
@@ -106,6 +125,13 @@
                 },
                 search: function (tradeDate, type) {
                     this.fullscreenLoading = true;
+                    if (type === '0') {
+                        this.tmpName = tradeDate + '跌停';
+                    } else if (type === '1') {
+                        this.tmpName = tradeDate + '涨停';
+                    } else {
+                        this.tmpName = tradeDate + '连版';
+                    }
                     axios.get(urlPre + '/stock/detail?tradeDay=' + tradeDate + '&type=' + type).then(res => {
                         this.stocks = res.data.data;
                         this.fullscreenLoading = false;
@@ -119,10 +145,8 @@
             created: function () {
                 var timestamp = Date.parse(new Date()) - (61 * 24 * 60 * 60 * 1000);
                 var date = new Date(timestamp);
-
                 var dt = new Date();
                 var dt1 = dt.setMonth(dt.getMonth() - 2);
-
                 Y = date.getFullYear();
                 M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1);
                 M2 = (new Date().getMonth() + 1 < 10 ? '0' + (new Date().getMonth() + 1) : new Date().getMonth() + 1);
@@ -157,49 +181,58 @@
             for (var i = 0; i < stData.length; i++) {
                 console.log(stData[i]);
                 labels.push(stData[i].tradeDate)
-                labels1.push(stData[i].highestTsName + "\n" + stData[i].highestTsCode)
+                labels1.push(stData[i].highestTsName)
                 data1.push(stData[i].limitUpCount)
                 data2.push(stData[i].continuousLimit)
                 data3.push(stData[i].highestLimit)
                 data4.push(stData[i].limitDownCount)
             }
-
             var myChart = echarts.init(document.getElementById('myChart'));
-
             // 指定图表的配置项和数据
             var option = {
                 title: {
-                    text: '周期图'
+                    text: 'Queen Mood Cycle',
+                    textStyle: {
+                        color: '#FFFFFF'
+                    }
                 },
                 tooltip: {
                     trigger: 'axis'
                 },
                 legend: {
-                    data: ['涨停数', '连版数', '最高空间版', '跌停数']
+                    data: ['涨停数', '连版数', '最高空间版', '跌停数'],
+                    textStyle: {
+                        color: '#FFFFFF'
+                    }
                 },
-                color: ['#FF0000', '#33cc33'],
+                color: ['#FF0000', '#00ff00'],
                 xAxis: [{
                     data: labels,
                     type: 'category',
                     axisLabel: {
                         interval: 0,
-                        rotate: 45,
-                        margin: 2,
+                        rotate: 25,
+                        margin: 10,
                         textStyle: {
-                            color: "#222"
-                        }
+                            color: "#FFFFFF"
+                        },
+                        fontWeight: '100',
+                        fontSize: 10
                     }
                 }, {
-                    data: labels1,//第二个X轴为数值轴不需要提供数据, 根据数值自适应
+                    data: labels1,
                     type: 'category',
                     triggerEvent: true,
                     axisLabel: {
                         interval: 0,
-                        rotate: 45,
-                        margin: 2,
+                        rotate: 25,
+                        margin: 10,
                         textStyle: {
-                            color: "#222"
-                        }
+                            color: "#FFFFFF"
+                        },
+                        fontWeight: '50',
+                        fontSize: 11,
+                        fontFamily: 'Microsoft YaHei'
                     }
                 }
                 ],
@@ -211,7 +244,16 @@
                     width: '90%',
                     height: '80%'
                 },
-                yAxis: {},
+                yAxis: {
+                    axisLabel: {
+                        interval: 0,
+                        margin: 2,
+                        textStyle: {
+                            color: "#FFFFFF"
+                        },
+                        fontSize: 11
+                    }
+                },
                 series: [{
                     id: 1,
                     name: '涨停数',
@@ -251,10 +293,10 @@
                     label: {
                         show: true,
                         position: 'top',
-                        color: "#FF7F00"
+                        color: "#FFFF00"
                     },
                     itemStyle: {
-                        color: "#FF7F00"
+                        color: "#FFFF00"
                     },
                     data: data3
                 },
@@ -265,10 +307,10 @@
                     label: {
                         show: true,
                         position: 'top',
-                        color: "#33cc33"
+                        color: "#00ff00"
                     },
                     lineStyle: {
-                        color: "#33cc33"
+                        color: "#00ff00"
                     },
                     smooth: 0.3,
                     data: data4
@@ -326,8 +368,12 @@
         }
     </script>
     <style>
+        body {
+            background-color: #0A1421;
+        }
+
         .myChart {
-            background: #f0f6ff;
+            background: #0E1C3B;
         }
 
         .el-row {
@@ -347,16 +393,16 @@
         }
 
         .bg-purple {
-            background: #d3dce6;
+            color: #ffffff;
         }
 
         .bg-purple-light {
-            background: #e9f3f3;
+            background: #fc0000;
         }
 
         .grid-content {
             border-radius: 1px;
-            min-height: 5px;
+            min-height: 3px;
         }
 
         .row-bg {

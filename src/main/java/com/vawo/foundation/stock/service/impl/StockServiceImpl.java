@@ -79,13 +79,11 @@ public class StockServiceImpl implements StockService {
             } else if (type == 1) {
                 //今日涨停
                 list.add(stock);
-            } else if (type == 2) {
+            } else{
                 //今日连版
                 if (stock.getLimitNum() > 1) {
                     list.add(stock);
                 }
-            } else {
-                //最高空间版
             }
         }
         return list;
