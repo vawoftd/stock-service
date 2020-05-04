@@ -46,7 +46,7 @@ public class StockServiceImpl implements StockService {
                     Stock stock = JSON.parseObject(u.toString(), Stock.class);
                     if (sld.getHighestLimit() < stock.getLimitNum()) {
                         sld.setHighestLimit(stock.getLimitNum());
-                        sld.setHighestTsCode(stock.getTsCode());
+                        sld.setHighestTsCode(stock.getSymble());
                         sld.setHighestTsName(stock.getName());
                     }
                     if (stock.getLimitNum() > 1) {
