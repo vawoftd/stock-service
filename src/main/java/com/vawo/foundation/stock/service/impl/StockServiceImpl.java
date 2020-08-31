@@ -6,7 +6,6 @@ import com.vawo.foundation.stock.StockServiceConstant;
 import com.vawo.foundation.stock.entity.Stock;
 import com.vawo.foundation.stock.entity.StockLimitDay;
 import com.vawo.foundation.stock.service.StockService;
-import com.vawo.foundation.stock.utils.rest.BaseResultRestClient;
 import com.vawo.foundation.stock.vo.TushareParam;
 import com.vawo.foundation.stock.vo.TushareResponse;
 import org.slf4j.Logger;
